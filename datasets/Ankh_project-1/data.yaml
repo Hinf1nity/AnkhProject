@@ -1,0 +1,15 @@
+names:
+  - amon
+  - amon_follower
+  - isis
+  - isis_follower
+nc: 4
+roboflow:
+  license: CC BY 4.0
+  project: ankh_project
+  url: https://universe.roboflow.com/projectcomputervision-exrek/ankh_project/dataset/1
+  version: 1
+  workspace: projectcomputervision-exrek
+test: D:\Diego\AnkhProject\datasets\Ankh_project-1\test\images
+train: D:\Diego\AnkhProject\datasets\Ankh_project-1\train\images
+val: D:\Diego\AnkhProject\datasets\Ankh_project-1\valid\images
