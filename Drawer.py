@@ -10,9 +10,16 @@ class ImageDrawer:
         self.height = height
         self.image = np.ones((self.height, self.width, 3),
                              dtype=np.uint8) * 255  # Imagen en blanco
+        self.image_copy = []
         self.hex_size = hex_size
         self.hex = []
-        self.draw_hexagonal_grid()
+
+    def draw_image(self, image):
+        image = cv2.imread(image)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.resize(image, (self.width, self.height))
+        self.image = image
+        self.image_copy = image.copy()
 
     def draw_hexagonal_grid(self):
         # Dibujar un tablero de hexágonos en la imagen
@@ -68,25 +75,22 @@ class ImageDrawer:
         self.image = cv2.resize(self.image, (self.width, self.height))
         print(self.image.shape)
 
-    def draw_square(self, hex_num, size=50, color=(0, 0, 0)):
+    def draw_square(self, position, size=50, color=(0, 0, 0)):
         # Dibujar un cuadrado en la imagen
         square = np.ones((size, size, 3), dtype=np.uint8) * \
             255  # Imagen en blanco sin canal alfa
-        position = self.hex[hex_num]
-        print(self.hex)
         print(position)
 
         square[:, :] = color  # Color del cuadrado
-
+        median = size//2
         # Colocar el cuadrado en la imagen
-        self.image[position[1]:position[1]+size,
-                   position[0]-size:position[0], :] = square
+        self.image[position[1]-median:position[1]+median,
+                   position[0]-median:position[0]+median, :] = square
 
-    def draw_hexagon_object(self, hex_num, size=50):
+    def draw_hexagon_object(self, position, size=50):
         # Dibujar un hexágono en la imagen sin fondo blanco
         # Imagen en blanco sin canal alfa
         hexagon_object = np.ones((size, size, 3), dtype=np.uint8) * 255
-        position = self.hex[hex_num]
         print(position)
 
         fig, ax = plt.subplots(figsize=(size/100, size/100))
@@ -107,17 +111,16 @@ class ImageDrawer:
         hexagon_object = cv2.imread('hexagon_object.png', cv2.IMREAD_UNCHANGED)
 
         # Colocar el hexágono en la imagen
-        self.image[position[1]:position[1]+hexagon_object.shape[0], position[0] -
-                   hexagon_object.shape[1]:position[0], 2] = hexagon_object[:, :, 3]
+        cx, cy = hexagon_object.shape[0]//2, hexagon_object.shape[1]//2
+        self.image[position[1]-cx:position[1]+cx, position[0] -
+                   cy:position[0]+cy, 2] = hexagon_object[:, :, 3]
 
-    def remove_object(self, hex_num, size=(0, 0)):
+    def remove_object(self, position, size=(0, 0)):
         # Restaurar el hexágono original en la posición
-        hexagon_original = cv2.imread('hexagonal_grid.png')
-        hexagon_original = cv2.resize(
-            hexagon_original, (self.width, self.height))
-        position = self.hex[hex_num]
-        self.image[position[1]:position[1]+size[0], position[0]-size[1]:position[0],
-                   :] = hexagon_original[position[1]:position[1]+size[0], position[0]-size[1]:position[0], :]
+        hexagon_original = self.image_copy.copy()
+        sx, sy = size[0]//2, size[1]//2
+        self.image[position[1]-sx:position[1]+sx, position[0]-sy:position[0]+sy,
+                   :] = hexagon_original[position[1]-sx:position[1]+sx, position[0]-sy:position[0]+sy, :]
 
     def show_image(self):
         plt.imshow(self.image)
